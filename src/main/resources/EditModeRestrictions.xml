@@ -1,0 +1,918 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE restrictions [
+        <!ELEMENT restrictions (restriction)*>
+        <!ATTLIST restrictions
+                xmlns:xs CDATA #REQUIRED
+                xmlns:xsi CDATA #REQUIRED>
+        <!ELEMENT restriction (conditions|properties)*>
+        <!ATTLIST restriction
+                continue CDATA #IMPLIED>
+        <!ELEMENT conditions (classes|properties|subjects)*>
+        <!ELEMENT properties (property)*>
+        <!ELEMENT property (values|value)*>
+        <!ATTLIST property
+                name CDATA #REQUIRED
+                operation CDATA #IMPLIED
+                readOnly CDATA #IMPLIED
+                required CDATA #IMPLIED>
+        <!ELEMENT classes (class)*>
+        <!ELEMENT class (#PCDATA)>
+        <!ELEMENT subjects (subject)*>
+        <!ELEMENT subject (#PCDATA)>
+        <!ATTLIST subject
+                type CDATA #REQUIRED>
+        <!ELEMENT values (value)*>
+        <!ELEMENT value (#PCDATA)>
+        <!ATTLIST value
+                xsi:type CDATA #REQUIRED>
+        ]>
+<restrictions xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <!-- Запрет на редактирование всех атрибутов по умолчанию. -->
+    <!--<restriction>-->
+        <!--<conditions/>-->
+        <!--<properties>-->
+            <!--<property name="*" readOnly="true"/>-->
+            <!--<property name="filenet_Content" readOnly="true"/>-->
+        <!--</properties>-->
+    <!--</restriction>-->
+
+    <!-- Обязательность заполнения атрибутов КА для Авансового отчета, у которого уже заполнены атрибуты КА. -->
+    <restriction>
+        <conditions>
+            <classes>
+                <class>AvasoviyOtchet</class>
+            </classes>
+            <properties>
+                <property name="AgentCode" operation="is_not_null"/>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="AgentCode" required="true"/>
+            <property name="AgentName" required="true"/>
+            <property name="AgentINN" required="true"/>
+        </properties>
+    </restriction>
+
+    <!-- Разрешение на редактирование всех атрибутов и вложения администраторам. -->
+    <restriction continue="false">
+        <conditions>
+            <subjects>
+                <subject type="group">App FileNet Admins</subject>
+                <subject type="group">App FileNet OS7 Admins</subject>
+            </subjects>
+        </conditions>
+        <properties>
+            <property name="*" readOnly="false"/>
+            <property name="filenet_Content" readOnly="false"/>
+            <property name="DateFiled" readOnly="true"/>
+        </properties>
+    </restriction>
+
+    <!-- Разрешение на добавление вложения для класса "Платежная позиция" в статусах "Черновик" и "Отклонен" создателю документа и ролям "Регистратор ХБиД" и "Регистратор ЦОП". -->
+    <restriction>
+        <conditions>
+            <subjects>
+                <subject type="user_sid">${CustomCreatorSID}</subject>
+                <subject type="role">Регистратор ХБиД</subject>
+                <subject type="role">Регистратор ОЦО</subject>
+                <subject type="role">Регистратор ЦОП</subject>
+            </subjects>
+            <classes>
+                <class>PaymentPosition</class>
+            </classes>
+            <properties>
+                <property name="Status" operation="in">
+                    <values>
+                        <value xsi:type="xs:string">Черновик</value>
+                        <value xsi:type="xs:string">Отклонен</value>
+                    </values>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="filenet_Content" readOnly="false"/>
+        </properties>
+    </restriction>
+
+    <!-- Запрет на последующие разрешения для подклассов "Группа 7". -->
+    <restriction continue="false">
+        <conditions>
+            <classes>
+                <class>Group7</class>
+            </classes>
+        </conditions>
+    </restriction>
+
+    <!-- Запрет на последующие разрешения для класса "Платежная позиция". -->
+    <restriction continue="false">
+        <conditions>
+            <classes>
+                <class>PaymentPosition</class>
+            </classes>
+        </conditions>
+    </restriction>
+
+    <!-- Разрешение на редактирование для класса "Заявка на разработку договора" в статусах
+    "Черновик" и "Отклонен" создателю документа -->
+    <restriction>
+        <conditions>
+            <subjects>
+                <subject type="user_sid">${CustomCreatorSID}</subject>
+            </subjects>
+            <classes>
+                <class>AgreementRequest</class>
+            </classes>
+            <properties>
+                <property name="Status" operation="in">
+                    <values>
+                        <value xsi:type="xs:string">Черновик</value>
+                        <value xsi:type="xs:string">Отклонен</value>
+                    </values>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="*" readOnly="false"/>
+            <property name="AgreementRequestExecutor" readOnly="true"/>
+            <property name="AgreementRequestType" readOnly="true"/>
+            <property name="CompanyName" readOnly="true"/>
+            <property name="CompanyCode" readOnly="true"/>
+            <property name="OrgUnit" readOnly="true"/>
+            <property name="CostsType" readOnly="true"/>
+            <property name="Status" readOnly="true"/>
+            <property name="Barcode" readOnly="true"/>
+            <property name="DateFiled" readOnly="true"/>
+        </properties>
+    </restriction>
+
+    <!-- Разрешение на редактирование вложения для класса "Заявка на разработку договора" в статусах
+    "Назначен" и "Возвращен на доработку" исполнителю заявки на договор -->
+    <restriction>
+        <conditions>
+            <subjects>
+                <subject type="user_sid">${AgreementRequestExecutorSID}</subject>
+            </subjects>
+            <classes>
+                <class>AgreementRequest</class>
+            </classes>
+            <properties>
+                <property name="Status" operation="in">
+                    <values>
+                        <value xsi:type="xs:string">Назначен</value>
+                        <value xsi:type="xs:string">Возвращен на доработку</value>
+                    </values>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="filenet_Content" readOnly="false"/>
+        </properties>
+    </restriction>
+
+    <!-- Разрешение на редактирование вложения для класса "Заявка на разработку договора" в любых статусах
+    кроме "Закрыт" и "Выполнен" создателю и исполнителю заявки на договор -->
+    <restriction>
+        <conditions>
+            <subjects>
+                <subject type="user_sid">${CustomCreatorSID}</subject>
+                <subject type="user_sid">${AgreementRequestExecutorSID}</subject>
+            </subjects>
+            <classes>
+                <class>AgreementRequest</class>
+            </classes>
+            <properties>
+                <property name="Status" operation="not_in">
+                    <values>
+                        <value xsi:type="xs:string">Закрыт</value>
+                        <value xsi:type="xs:string">Выполнен</value>
+                    </values>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="filenet_Content" readOnly="false"/>
+        </properties>
+    </restriction>
+
+    <!-- Запрет на последующие разрешения для класса "Заявка на разработку договора". -->
+    <restriction continue="false">
+        <conditions>
+            <classes>
+                <class>AgreementRequest</class>
+            </classes>
+        </conditions>
+    </restriction>
+
+    <!-- Разрешение создателю документа на изменение вложения документа в указанных статусах. -->
+    <restriction>
+        <conditions>
+            <subjects>
+                <subject type="user_sid">${CustomCreatorSID}</subject>
+            </subjects>
+            <properties>
+                <property name="Status" operation="in">
+                    <values>
+                        <value xsi:type="xs:string">Отозван автором</value>
+                        <value xsi:type="xs:string">Отклонен</value>
+                    </values>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="filenet_Content" readOnly="false"/>
+        </properties>
+    </restriction>
+
+    <!-- Разрешение делопроизводителю на изменение вложения в указанных статусах. -->
+    <restriction>
+        <conditions>
+            <subjects>
+                <subject type="role">Делопроизводитель ХБиД</subject>
+            </subjects>
+            <properties>
+                <property name="Status" operation="in">
+                    <values>
+                        <value xsi:type="xs:string">У поставщика</value>
+                        <value xsi:type="xs:string">Подписание бумажной копии</value>
+                    </values>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="filenet_Content" readOnly="false"/>
+        </properties>
+    </restriction>
+
+    <!-- Разрешение регистратору ОЦО на изменение вложения в указанных статусах. -->
+    <restriction>
+        <conditions>
+            <subjects>
+                <subject type="role">Регистратор ОЦО</subject>
+            </subjects>
+            <properties>
+                <property name="Status" operation="in">
+                    <values>
+                        <value xsi:type="xs:string">В работе ОЦО</value>
+                        <value xsi:type="xs:string">В работе ОЦО (автор)</value>
+                    </values>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="filenet_Content" readOnly="false"/>
+        </properties>
+    </restriction>
+
+    <!-- Разрешение создателю документа и делопроизводителям ХБиД на изменение вложения документа в статусах "Возвращен на доработку" или "Утверждено руководителем". -->
+    <restriction>
+        <conditions>
+            <subjects>
+                <subject type="user_sid">${CustomCreatorSID}</subject>
+                <subject type="role">Делопроизводитель ХБиД</subject>
+            </subjects>
+            <properties>
+                <property name="Status" operation="in">
+                    <values>
+                        <value xsi:type="xs:string">Черновик</value>
+                        <value xsi:type="xs:string">Возвращен на доработку в Регион</value>
+                        <value xsi:type="xs:string">Утверждено руководителем</value>
+                    </values>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="filenet_Content" readOnly="false"/>
+        </properties>
+    </restriction>
+
+    <!-- Разрешение создателю документа и регистраторам на изменение вложения документа
+      и атрибутов "Оригинал/копия" и "Номер архивного дела" в статусе "Черновик". -->
+    <restriction>
+        <conditions>
+            <subjects>
+                <subject type="user_sid">${CustomCreatorSID}</subject>
+                <subject type="role">Регистратор ХБиД</subject>
+                <subject type="role">Регистратор ОЦО</subject>
+                <subject type="role">Регистратор Сокращенная карточка</subject>
+            </subjects>
+            <properties>
+                <property name="Status" operation="in">
+                    <values>
+                        <value xsi:type="xs:string">Черновик</value>
+                    </values>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="ArchiveCase" readOnly="false"/>
+            <property name="Originality" readOnly="false"/>
+            <property name="filenet_Content" readOnly="false"/>
+        </properties>
+    </restriction>
+
+    <!-- Разрешение создателю документа и регистраторам на добавление вложения
+      и изменение атрибута "Оригинал/копия" в первой версии дополнительного документа без вложения. -->
+    <restriction>
+        <conditions>
+            <subjects>
+                <subject type="user_sid">${CustomCreatorSID}</subject>
+                <subject type="role">Регистратор ХБиД</subject>
+                <subject type="role">Регистратор ОЦО</subject>
+                <subject type="role">Регистратор Сокращенная карточка</subject>
+            </subjects>
+            <properties>
+                <property name="MajorVersionNumber">
+                    <value xsi:type="xs:int">1</value>
+                </property>
+                <property name="ContentSize" operation="is_null"/>
+                <property name="isSecond">
+                    <value xsi:type="xs:boolean">true</value>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="Originality" readOnly="false"/>
+            <property name="filenet_Content" readOnly="false"/>
+        </properties>
+    </restriction>
+
+    <!-- Разрешение для автора на редактирование атрибута "Вид договоров" виртуального документа в статусе "Подписан". -->
+    <restriction continue="true">
+        <conditions>
+            <subjects>
+                <subject type="user_sid">${CustomCreatorSID}</subject>
+            </subjects>
+            <classes>
+                <class>VirtualFrameAgreement</class>
+                <class>VirtualFrameDopSoglashenie</class>
+                <class>VirtualAgreement</class>
+                <class>VirtualDopSoglashenie</class>
+                <class>VirtualOrder</class>
+            </classes>
+            <properties>
+                <property name="Status">
+                    <value xsi:type="xs:string">Подписан</value>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="CostsType" readOnly="false"/>
+        </properties>
+    </restriction>
+
+    <!-- Разрешение регистраторам ОЦО на редактирование атрибутов "Номер документа" и "Дата документа" в указанных статусах. -->
+    <restriction>
+        <conditions>
+            <subjects>
+                <subject type="role">Регистратор ОЦО</subject>
+            </subjects>
+            <properties>
+                <property name="Status" operation="in">
+                    <values>
+                        <value xsi:type="xs:string">Обработка в ОЦО</value>
+                        <value xsi:type="xs:string">Повторная обработка в ОЦО</value>
+                        <value xsi:type="xs:string">В работе ОЦО</value>
+                        <value xsi:type="xs:string">В работе ОЦО (автор)</value>
+                    </values>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="DocumentNumber" readOnly="false"/>
+            <property name="DocumentDate" readOnly="false"/>
+        </properties>
+    </restriction>
+
+    <!-- Разрешение "Регистратор ХБиД" на редактирование атрибута "Оригинал/Копия" в указанных статусах. -->
+    <restriction>
+        <conditions>
+            <subjects>
+                <subject type="role">Регистратор ХБиД</subject>
+                <subject type="role">Регистратор ОЦО</subject>
+            </subjects>
+            <properties>
+                <property name="Status" operation="in">
+                    <values>
+                        <value xsi:type="xs:string">Обработка в Регионе</value>
+                        <value xsi:type="xs:string">Повторная обработка в Регионе</value>
+                    </values>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="Originality" readOnly="false"/>
+        </properties>
+    </restriction>
+
+    <!-- Разрешение регистратору ЦОП на изменение вложения документа в указанных статусах. -->
+    <restriction>
+        <conditions>
+            <subjects>
+                <subject type="role">Регистратор ЦОП</subject>
+            </subjects>
+            <properties>
+                <property name="Status" operation="in">
+                    <values>
+                        <value xsi:type="xs:string">Возвращен на доработку в ЦОП</value>
+                    </values>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="filenet_Content" readOnly="false"/>
+        </properties>
+    </restriction>
+
+    <!-- Разрешение создателю документа на изменение вложения и указанных атрибутов документа в статусе "Возвращен на доработку в ЦОП". -->
+    <restriction>
+        <conditions>
+            <subjects>
+                <subject type="user_sid">${CustomCreatorSID}</subject>
+            </subjects>
+            <properties>
+                <property name="Status">
+                        <value xsi:type="xs:string">Возвращен на доработку в ЦОП</value>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="filenet_Content" readOnly="false"/>
+            <property name="DocumentDate" readOnly="false"/>
+            <property name="DocumentNumber" readOnly="false"/>
+            <property name="AccountUnit" readOnly="false"/>
+            <property name="DocumentDirection" readOnly="false"/>
+            <property name="Intragroup" readOnly="false"/>
+            <property name="Comment" readOnly="false"/>
+            <property name="ArchiveCase" readOnly="false"/>
+            <property name="Originality" readOnly="false"/>
+        </properties>
+    </restriction>
+
+    <!-- Разрешение создателю документа на редактирование вложения в статусе "На доработке". -->
+    <restriction>
+        <conditions>
+            <subjects>
+                <subject type="user_sid">${CustomCreatorSID}</subject>
+                <subject type="user_sid">${RequestToCOS_CreatorSID}</subject>
+            </subjects>
+            <properties>
+                <property name="Status">
+                    <value xsi:type="xs:string">На доработке</value>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="filenet_Content" readOnly="false"/>
+        </properties>
+    </restriction>
+
+    <!-- Временное разрешение для редактирования вложений Автором в статусе Подписание для БЕ = 2000 . -->
+    <restriction>
+        <conditions>
+            <subjects>
+                <subject type="user_sid">${CustomCreatorSID}</subject>
+            </subjects>
+            <properties>
+                <property name="CompanyCode">
+                    <value xsi:type="xs:string">2000</value>
+                </property>
+                <property name="Status">
+                    <value xsi:type="xs:string">Подписание</value>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="filenet_Content" readOnly="false"/>
+        </properties>
+    </restriction>
+
+    <!-- Запрет на редактирование всех атрибутов и вложения, если документ создан в SAP. -->
+    <restriction continue="false">
+        <conditions>
+            <properties>
+                <property name="SAPID" operation="is_not_null"/>
+            </properties>
+        </conditions>
+    </restriction>
+
+    <!-- Разрешение создателю документа и регистраторам на редактирование всех атрибутов и вложения у Тендера. -->
+    <restriction continue="false">
+        <conditions>
+            <subjects>
+                <subject type="user_sid">${CustomCreatorSID}</subject>
+                <subject type="role">Регистратор ХБиД</subject>
+                <subject type="role">Регистратор ОЦО</subject>
+                <subject type="role">Регистратор Сокращенная карточка</subject>
+            </subjects>
+            <classes>
+                <class>Tender</class>
+            </classes>
+        </conditions>
+        <properties>
+            <property name="*" readOnly="false"/>
+            <property name="filenet_Content" readOnly="false"/>
+            <property name="Barcode" readOnly="true"/>
+            <property name="Status" readOnly="true"/>
+            <property name="DateFiled" readOnly="true"/>
+            <property name="isSecond" readOnly="true"/>
+            <property name="COS" readOnly="true"/>
+        </properties>
+    </restriction>
+
+    <!-- Разрешение создателю документа на редактирование всех атрибутов, кроме заданных,
+      и вложения в указанных статусах. -->
+    <restriction>
+        <conditions>
+            <subjects>
+                <subject type="user_sid">${CustomCreatorSID}</subject>
+            </subjects>
+            <properties>
+                <property name="Status" operation="in">
+                    <values>
+                        <value xsi:type="xs:string">Черновик</value>
+                        <value xsi:type="xs:string">Отозван автором</value>
+                        <value xsi:type="xs:string">Отклонен</value>
+                        <value xsi:type="xs:string">Возвращен на доработку в ОЦО</value>
+                        <value xsi:type="xs:string">Возвращен на доработку в Регион</value>
+                    </values>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="*" readOnly="false"/>
+            <property name="filenet_Content" readOnly="false"/>
+            <property name="CompanyName" readOnly="true"/>
+            <property name="AgentCode" readOnly="true"/>
+            <property name="AgentName" readOnly="true"/>
+            <property name="AgentINN" readOnly="true"/>
+            <property name="CPP" readOnly="true"/>
+            <property name="Resident" readOnly="true"/>
+            <property name="Barcode" readOnly="true"/>
+            <property name="Status" readOnly="true"/>
+            <property name="DateFiled" readOnly="true"/>
+            <property name="isSecond" readOnly="true"/>
+            <property name="COS" readOnly="true"/>
+        </properties>
+    </restriction>
+
+    <!-- Запрет создателю документа на редактирование заданных атрибутов в статусе
+      "Возвращен на доработку". -->
+    <restriction>
+        <conditions>
+            <subjects>
+                <subject type="user_sid">${CustomCreatorSID}</subject>
+            </subjects>
+            <properties>
+                <property name="Status" operation="in">
+                    <values>
+                        <value xsi:type="xs:string">Возвращен на доработку в ОЦО</value>
+                        <value xsi:type="xs:string">Возвращен на доработку в Регион</value>
+                        <value xsi:type="xs:string">В работе ЦОП</value>
+                    </values>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="OrgUnit" readOnly="true"/>
+            <property name="Currency" readOnly="true"/>
+            <property name="ValContr" readOnly="true"/>
+            <property name="SC" readOnly="true"/>
+            <property name="FromEDO" readOnly="true"/>
+            <property name="NDSRate" readOnly="true"/>
+            <property name="SummNoNDS" readOnly="true"/>
+            <property name="SummNDS" readOnly="true"/>
+            <property name="SummWithNDS" readOnly="true"/>
+            <property name="Budgeting" readOnly="true"/>
+        </properties>
+    </restriction>
+
+    <!-- Разрешение пользователю подразделения на редактирование всех атрибутов,
+      кроме заданных, в статусе "Возвращен на доработку". -->
+    <restriction>
+        <conditions>
+            <subjects>
+                <subject type="group">App FileNet OS7 ${CompanyCode} ${OrgUnit} Register</subject>
+                <subject type="group">App FileNet OS7 ${CompanyCode} ${top_parent.OrgUnit} Register</subject>
+                <subject type="group">App FileNet OS7 ${CompanyCode} ALL Register</subject>
+                <subject type="group">App FileNet OS7 ${CompanyCode} ${OrgUnit:0:3}_ALL Register</subject>
+                <subject type="group">App FileNet OS7 ${CompanyCode} ${top_parent.OrgUnit:0:3}_ALL Register</subject>
+                <subject type="group">App FileNet OS7 ALL ${OrgUnit} Register</subject>
+                <subject type="group">App FileNet OS7 ALL ${top_parent.OrgUnit} Register</subject>
+                <subject type="group">App FileNet OS7 ALL ALL Register</subject>
+            </subjects>
+            <properties>
+                <property name="Status" operation="in">
+                    <values>
+                        <value xsi:type="xs:string">Возвращен на доработку в ОЦО</value>
+                        <value xsi:type="xs:string">Возвращен на доработку в Регион</value>
+                    </values>
+                </property>
+                <property name="tele2_CreatorCompany" operation="ne">
+                    <value xsi:type="xs:string">ОЦО</value>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="*" readOnly="false"/>
+            <property name="filenet_Content" readOnly="false"/>
+            <property name="CompanyName" readOnly="true"/>
+            <property name="AgentCode" readOnly="true"/>
+            <property name="AgentName" readOnly="true"/>
+            <property name="AgentINN" readOnly="true"/>
+            <property name="CPP" readOnly="true"/>
+            <property name="Resident" readOnly="true"/>
+            <property name="OrgUnit" readOnly="true"/>
+            <property name="Currency" readOnly="true"/>
+            <property name="ValContr" readOnly="true"/>
+            <property name="SC" readOnly="true"/>
+            <property name="FromEDO" readOnly="true"/>
+            <property name="NDSRate" readOnly="true"/>
+            <property name="SummNoNDS" readOnly="true"/>
+            <property name="SummNDS" readOnly="true"/>
+            <property name="SummWithNDS" readOnly="true"/>
+            <property name="Budgeting" readOnly="true"/>
+            <property name="Barcode" readOnly="true"/>
+            <property name="Status" readOnly="true"/>
+            <property name="DateFiled" readOnly="true"/>
+            <property name="isSecond" readOnly="true"/>
+            <property name="COS" readOnly="true"/>
+        </properties>
+    </restriction>
+
+    <!-- Разрешение пользователю УУ на редактирование всех атрибутов, кроме заданных,
+      в указанных статусах. -->
+    <restriction>
+        <conditions>
+            <subjects>
+                <subject type="role">Регистратор ОЦО</subject>
+            </subjects>
+            <properties>
+                <property name="Status" operation="in">
+                    <values>
+                        <value xsi:type="xs:string">Возвращен на доработку в ОЦО</value>
+                        <value xsi:type="xs:string">Возвращен на доработку в Регион</value>
+                        <value xsi:type="xs:string">В работе ОЦО (автор)</value>
+                        <value xsi:type="xs:string">В работе ОЦО</value>
+                    </values>
+                </property>
+                <property name="tele2_CreatorCompany" operation="eq">
+                    <value xsi:type="xs:string">ОЦО</value>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="*" readOnly="false"/>
+            <property name="filenet_Content" readOnly="false"/>
+            <property name="CompanyName" readOnly="true"/>
+            <property name="AgentCode" readOnly="true"/>
+            <property name="AgentName" readOnly="true"/>
+            <property name="AgentINN" readOnly="true"/>
+            <property name="CPP" readOnly="true"/>
+            <property name="Resident" readOnly="true"/>
+            <property name="OrgUnit" readOnly="true"/>
+            <property name="Currency" readOnly="true"/>
+            <property name="ValContr" readOnly="true"/>
+            <property name="SC" readOnly="true"/>
+            <property name="FromEDO" readOnly="true"/>
+            <property name="NDSRate" readOnly="true"/>
+            <property name="SummNoNDS" readOnly="true"/>
+            <property name="SummNDS" readOnly="true"/>
+            <property name="SummWithNDS" readOnly="true"/>
+            <property name="Budgeting" readOnly="true"/>
+            <property name="Barcode" readOnly="true"/>
+            <property name="Status" readOnly="true"/>
+            <property name="DateFiled" readOnly="true"/>
+            <property name="isSecond" readOnly="true"/>
+            <property name="COS" readOnly="true"/>
+        </properties>
+    </restriction>
+
+    <!-- Разрешение создателю документа на редактирование заданных атрибутов в статусе
+      "Возвращен на доработку", кроме заданных типов документов. -->
+    <restriction>
+        <conditions>
+            <subjects>
+                <subject type="user_sid">${CustomCreatorSID}</subject>
+            </subjects>
+            <properties>
+                <property name="Status" operation="in">
+                    <values>
+                        <value xsi:type="xs:string">Возвращен на доработку в ОЦО</value>
+                        <value xsi:type="xs:string">Возвращен на доработку в Регион</value>
+                        <value xsi:type="xs:string">В работе ЦОП</value>
+                    </values>
+                </property>
+                <property name="filenet_ClassName" operation="not_in">
+                    <values>
+                        <value xsi:type="xs:string">ClearingsAgreements</value>
+                    </values>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="NDSRate" readOnly="false"/>
+            <property name="SummNoNDS" readOnly="false"/>
+            <property name="SummNDS" readOnly="false"/>
+            <property name="SummWithNDS" readOnly="false"/>
+            <property name="Budgeting" readOnly="true"/>
+        </properties>
+    </restriction>
+
+    <!-- Разрешение пользователю подразделения на редактирование заданных атрибутов
+       в статусе "Возвращен на доработку", кроме заданных типов документов. -->
+    <restriction>
+        <conditions>
+            <subjects>
+                <subject type="group">App FileNet OS7 ${CompanyCode} ${OrgUnit} Register</subject>
+                <subject type="group">App FileNet OS7 ${CompanyCode} ${top_parent.OrgUnit} Register</subject>
+                <subject type="group">App FileNet OS7 ${CompanyCode} ALL Register</subject>
+                <subject type="group">App FileNet OS7 ${CompanyCode} ${OrgUnit:0:3}_ALL Register</subject>
+                <subject type="group">App FileNet OS7 ${CompanyCode} ${top_parent.OrgUnit:0:3}_ALL Register</subject>
+                <subject type="group">App FileNet OS7 ALL ${OrgUnit} Register</subject>
+                <subject type="group">App FileNet OS7 ALL ${top_parent.OrgUnit} Register</subject>
+                <subject type="group">App FileNet OS7 ALL ALL Register</subject>
+            </subjects>
+            <properties>
+                <property name="Status" operation="in">
+                    <values>
+                        <value xsi:type="xs:string">Возвращен на доработку в ОЦО</value>
+                        <value xsi:type="xs:string">Возвращен на доработку в Регион</value>
+                        <value xsi:type="xs:string">В работе ЦОП</value>
+                    </values>
+                </property>
+                <property name="tele2_CreatorCompany" operation="ne">
+                    <value xsi:type="xs:string">ОЦО</value>
+                </property>
+                <property name="filenet_ClassName" operation="not_in">
+                    <values>
+                        <value xsi:type="xs:string">ClearingsAgreements</value>
+                    </values>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="NDSRate" readOnly="false"/>
+            <property name="SummNoNDS" readOnly="false"/>
+            <property name="SummNDS" readOnly="false"/>
+            <property name="SummWithNDS" readOnly="false"/>
+            <property name="Budgeting" readOnly="true"/>
+        </properties>
+    </restriction>
+
+    <!-- Разрешение пользователю УУ на редактирование заданных атрибутов в статусе
+      "Возвращен на доработку", кроме заданных типов документов. -->
+    <restriction>
+        <conditions>
+            <subjects>
+                <subject type="role">Регистратор ОЦО</subject>
+            </subjects>
+            <properties>
+                <property name="Status" operation="in">
+                    <values>
+                        <value xsi:type="xs:string">Возвращен на доработку в ОЦО</value>
+                        <value xsi:type="xs:string">Возвращен на доработку в Регион</value>
+                        <value xsi:type="xs:string">В работе ЦОП</value>
+                        <value xsi:type="xs:string">В работе ОЦО (автор)</value>
+                    </values>
+                </property>
+                <property name="tele2_CreatorCompany" operation="eq">
+                    <value xsi:type="xs:string">ОЦО</value>
+                </property>
+                <property name="filenet_ClassName" operation="not_in">
+                    <values>
+                        <value xsi:type="xs:string">ClearingsAgreements</value>
+                    </values>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="NDSRate" readOnly="false"/>
+            <property name="SummNoNDS" readOnly="false"/>
+            <property name="SummNDS" readOnly="false"/>
+            <property name="SummWithNDS" readOnly="false"/>
+            <property name="Budgeting" readOnly="true"/>
+            <property name="Currency" readOnly="false"/>
+        </properties>
+    </restriction>
+
+    <!-- Запрет на редактирование вложения сотрудникам компаний Теле2-Москва и Пилар в указанных статусах. -->
+    <restriction>
+        <conditions>
+            <properties>
+                <property name="CompanyCode" operation="in">
+                    <values>
+                        <value xsi:type="xs:string">2770</value>
+                        <value xsi:type="xs:string">A770</value>
+                    </values>
+                </property>
+                <property name="Status" operation="in">
+                    <values>
+                        <value xsi:type="xs:string">Подписание</value>
+                        <value xsi:type="xs:string">Подписание бумажной копии</value>
+                        <value xsi:type="xs:string">У поставщика</value>
+                    </values>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="filenet_Content" readOnly="true"/>
+        </properties>
+    </restriction>
+
+    <!-- Запрет на редактирование вложения создателем документа в статусе "Подписание". -->
+    <restriction>
+        <conditions>
+            <subjects>
+                <subject type="user_sid">${CustomCreatorSID}</subject>
+            </subjects>
+            <properties>
+                <property name="CompanyCode" operation="ne">
+                    <value xsi:type="xs:string">2000</value>
+                </property>
+                <property name="Status" operation="eq">
+                    <value xsi:type="xs:string">Подписание</value>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="filenet_Content" readOnly="true"/>
+        </properties>
+    </restriction>
+
+    <!-- Разрешение на редактирование вложения делопроизводителям ХБиД. -->
+    <restriction>
+        <conditions>
+            <subjects>
+                <subject type="role">Делопроизводитель ХБиД</subject>
+            </subjects>
+            <properties>
+                <property name="CompanyCode" operation="in">
+                    <values>
+                        <value xsi:type="xs:string">2770</value>
+                        <value xsi:type="xs:string">A770</value>
+                    </values>
+                </property>
+                <property name="Status" operation="in">
+                    <values>
+                        <value xsi:type="xs:string">Подписание бумажной копии</value>
+                        <value xsi:type="xs:string">У поставщика</value>
+                    </values>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="filenet_Content" readOnly="false"/>
+        </properties>
+    </restriction>
+
+    <!-- Разрешение регистраторам ОЦО на редактирование атрибутов "Комментарий", "Дата документа" и "Номер документа", а также на замену вложения в классах "Акт сверки" и "Акт сверки ЦД". -->
+    <restriction>
+        <conditions>
+            <subjects>
+                <subject type="role">Регистратор ОЦО</subject>
+            </subjects>
+            <classes>
+                <class>AktSverki</class>
+                <class>ActSverkiCD</class>
+            </classes>
+            <properties>
+                <property name="Status" operation="in">
+                    <values>
+                        <value xsi:type="xs:string">Обработка в ОЦО</value>
+                        <value xsi:type="xs:string">Повторная обработка в ОЦО</value>
+                        <value xsi:type="xs:string">В работе ОЦО</value>
+                        <value xsi:type="xs:string">В работе ОЦО (автор)</value>
+                    </values>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="filenet_Content" readOnly="false"/>
+            <property name="Comment" readOnly="false"/>
+            <property name="DocumentDate" readOnly="false"/>
+            <property name="DocumentNumber" readOnly="false"/>
+        </properties>
+    </restriction>
+
+    <!-- Разрешение регистраторам ЦОП на редактирование атрибута "Комментарий" в статусе "В работе ЦОП". -->
+    <restriction>
+        <conditions>
+            <subjects>
+                <subject type="role">Регистратор ЦОП</subject>
+            </subjects>
+            <properties>
+                <property name="Status" operation="in">
+                    <values>
+                        <value xsi:type="xs:string">В работе ЦОП</value>
+                    </values>
+                </property>
+            </properties>
+        </conditions>
+        <properties>
+            <property name="Comment" readOnly="false"/>
+        </properties>
+    </restriction>
+
+</restrictions>
