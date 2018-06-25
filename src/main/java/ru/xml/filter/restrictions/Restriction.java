@@ -2,6 +2,7 @@ package ru.xml.filter.restrictions;
 
 
 import org.w3c.dom.Node;
+import ru.xml.filter.model.Answer;
 import ru.xml.filter.model.Document;
 import ru.xml.filter.model.Property;
 import ru.xml.filter.model.Subject;
@@ -18,6 +19,8 @@ public class Restriction {
     private List<Document> documents;
 
     private List<Property> properties;
+
+    private List<Answer> answers;
 
     public List<Subject> getSubjects() {
         return subjects;
@@ -41,5 +44,13 @@ public class Restriction {
 
     public void setProperties(List<Property> properties) {
         this.properties = properties;
+    }
+
+    public List<Answer> getAnswers() {
+        return answers;
+    }
+
+    public void setAnswers(List<Answer> answers) {
+        this.answers = answers;
     }
 }

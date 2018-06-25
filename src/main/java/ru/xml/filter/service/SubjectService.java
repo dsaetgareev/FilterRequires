@@ -10,10 +10,15 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Create by dinis of 24.06.18.
+ * Сервис для субъектов.
  */
 public class SubjectService {
 
+    /**
+     * Возвращает список субъектов.
+     * @param node - искомая нода
+     * @return - сисок субъектов
+     */
     public List<Subject> getSubjects(Node node) {
         List<Subject> subjectList = new ArrayList<>();
         NodeList list = node.getChildNodes();
@@ -23,9 +28,9 @@ public class SubjectService {
                 for (int j = 0; j < subjects.getLength(); j++) {
                     if (subjects.item(j).getAttributes() != null) {
                         Subject subject = new Subject();
-                    subject.setType(subjects.item(j).getAttributes().getNamedItem("type").getTextContent());
-                    subject.setValue(subjects.item(j).getTextContent());
-                    subjectList.add(subject);
+                        subject.setType(subjects.item(j).getAttributes().getNamedItem("type").getTextContent());
+                        subject.setValue(subjects.item(j).getTextContent());
+                        subjectList.add(subject);
                     }
                 }
             }
@@ -33,4 +38,26 @@ public class SubjectService {
         return subjectList;
     }
 
+    /**
+     * Возвращает результат, содержится ли субъект с параметрами в списке.
+     * @param type - параметр тип
+     * @param value - параметр значение
+     * @param subjects - список субъектов
+     * @return - логический ответ
+     */
+    public boolean getContains(String type, String value, List<Subject> subjects) {
+        boolean result = false;
+        if (subjects.isEmpty() && "".equals(type) && "".equals(value)) {
+            result = true;
+        } else {
+            for (Subject subject : subjects) {
+                if (Objects.equals(type, subject.getType())
+                        && Objects.equals(value, subject.getValue())) {
+                    result = true;
+                    break;
+                }
+            }
+        }
+        return result;
+    }
 }

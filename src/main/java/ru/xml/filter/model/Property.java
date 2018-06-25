@@ -1,6 +1,7 @@
 package ru.xml.filter.model;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,6 +12,15 @@ public class Property {
     private String name;
 
     private List<Value> values;
+
+    public List<String> fullName() {
+        List<String> result = new ArrayList<>();
+        values.forEach(value -> result.add(this.name + ": " + value.getValue()));
+        if (this.values.isEmpty()) {
+            result.add(this.name);
+        }
+        return result;
+    }
 
     public String getName() {
         return name;

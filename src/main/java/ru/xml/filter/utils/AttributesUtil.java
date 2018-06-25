@@ -5,10 +5,18 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 /**
- * Create by dinis of 24.06.18.
+ * Класс работает с атрибутами.
  */
 public class AttributesUtil {
 
+    private AttributesUtil() {
+    }
+
+    /**
+     * Соедеиняет значения атрибутов ноды в отдну строку.
+     * @param node - текучая нода
+     * @return - строка
+     */
     public static String getAttributesValues(Node node) {
         StringBuilder sb = new StringBuilder();
         NamedNodeMap map = node.getAttributes();
@@ -17,7 +25,7 @@ public class AttributesUtil {
                 sb.append(map.item(i).getTextContent() + " ");
             }
         }
-        return sb.toString();
+        return sb.toString().trim();
     }
 
 }

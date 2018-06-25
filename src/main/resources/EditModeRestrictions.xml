@@ -29,14 +29,14 @@
         ]>
 <restrictions xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-    <!-- Запрет на редактирование всех атрибутов по умолчанию. -->
-    <!--<restriction>-->
-        <!--<conditions/>-->
-        <!--<properties>-->
-            <!--<property name="*" readOnly="true"/>-->
-            <!--<property name="filenet_Content" readOnly="true"/>-->
-        <!--</properties>-->
-    <!--</restriction>-->
+     <!--Запрет на редактирование всех атрибутов по умолчанию.-->
+    <restriction>
+        <conditions/>
+        <properties>
+            <property name="*" readOnly="true"/>
+            <property name="filenet_Content" readOnly="true"/>
+        </properties>
+    </restriction>
 
     <!-- Обязательность заполнения атрибутов КА для Авансового отчета, у которого уже заполнены атрибуты КА. -->
     <restriction>

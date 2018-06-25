@@ -11,12 +11,17 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Create by dinis of 24.06.18.
+ * Сервис для property.
  */
 public class PropertyService {
 
     private ValueService valueService = new ValueService();
 
+    /**
+     * Возвращает все property.
+     * @param node - искомая нода
+     * @return - список property
+     */
     public List<Property> getProperties(Node node) {
         List<Property> result = new ArrayList<>();
         NodeList nodeList = node.getChildNodes();
@@ -38,5 +43,28 @@ public class PropertyService {
         }
         return result;
     }
+
+
+    /**
+     * Возвращает логическое значение, содержится ли данное свойство списке.
+     * @param fullName - имя свойства
+     * @param fullNames - список свойств
+     * @return - логическое значение
+     */
+    public boolean getContains(String fullName, List<String> fullNames) {
+        boolean result = false;
+        if (fullNames.isEmpty() && "".equals(fullName)) {
+            result = true;
+        } else {
+            for (String name : fullNames) {
+                if (Objects.equals(fullName, name)) {
+                    result = true;
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
 
 }
